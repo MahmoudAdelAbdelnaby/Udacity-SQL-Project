@@ -1,0 +1,49 @@
+/* Query 1 */
+SELECT  e.FirstName ||" " ||e.LastName EmployeeName,sum(i.Total) TotalAmount
+from Invoice i 
+Join Customer c
+ON c.CustomerId = i.InvoiceId
+join Employee e
+ON e.EmployeeId = c.SupportRepId
+group by 1;
+
+/* Query 2 */
+WITH t1 AS (SELECT g.name Genre_Name, t.name Track_Name, (t.Milliseconds/60000) Mins,
+CASE WHEN t.Milliseconds > 300000 THEN '5 mins +' WHEN t.Milliseconds < 300000 THEN 'Less than 5 mins' Else null END AS Mins_Group
+FROM Track t
+Join Genre g
+ON g.GenreId = t.GenreId
+)
+Select t1.Genre_name,AVG(t1.Mins) AVG
+From t1 
+group by 1;
+
+/* Query 3 */
+WITH t1 AS (SELECT g.name Genre_Name, t.name Track_Name, (t.Milliseconds/60000) Mins,
+CASE WHEN t.Milliseconds > 300000 THEN '5 mins +' WHEN t.Milliseconds < 300000 THEN 'Less than 5 mins' Else null END AS Mins_Group
+FROM Track t
+Join Genre g
+ON g.GenreId = t.GenreId
+)
+Select t1.Mins_Group,Count(*) Songs
+From t1 
+group by 1;
+
+/* Query 4 */
+WITH t1 as(select t.Name Track_Name,il.trackid,sum(il.UnitPrice*il.Quantity) Total_Per_Track
+FROM InvoiceLine il
+join Track t
+on t.trackid = il.TrackId
+group by 1
+Order BY 3 DESC)
+,t2 AS (SELECT g.name Genre_Name, t.name Track_Name,t.TrackId, (t.Milliseconds/60000) Mins,
+CASE WHEN t.Milliseconds > 300000 THEN '5 mins +' WHEN t.Milliseconds < 300000 THEN 'Less than 5 mins' Else null END AS Mins_Group
+FROM Track t
+Join Genre g
+ON g.GenreId = t.GenreId
+)
+Select t2.mins_group , Sum(t1.Total_Per_track) Total_Per_Group
+FROM t1
+JOIN t2 
+ON t1.TrackId = t2.TrackId
+group by t2.Mins_group;
